@@ -33,6 +33,10 @@ const listSchema = new mongoose.Schema(
       ref: 'User',
       required: true
     },
+    isTodo: {
+      type: Boolean,
+      default: true
+    },
     sharedWith: [
       {
         type: mongoose.Schema.Types.ObjectId,

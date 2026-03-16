@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 // POST /api/lists — create list
 router.post('/', async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title, isTodo } = req.body;
 
     if (!title || !title.trim()) {
       return res.status(400).json({ error: 'Title is required' });
@@ -36,6 +36,7 @@ router.post('/', async (req, res) => {
 
     const list = new List({
       title: title.trim(),
+      isTodo: isTodo !== false,
       owner: req.userId,
       sharedWith: [],
       items: []
@@ -84,7 +85,7 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'List not found' });
     }
 
-    const { title } = req.body;
+    const { title, isTodo } = req.body;
     if (!title || !title.trim()) {
       return res.status(400).json({ error: 'Title is required' });
     }
@@ -97,6 +98,7 @@ router.put('/:id', async (req, res) => {
     }
 
     list.title = title.trim();
+    if (isTodo !== undefined) list.isTodo = isTodo;
     await list.save();
     await list.populate('sharedWith', 'email');
     await list.populate('owner', 'email');

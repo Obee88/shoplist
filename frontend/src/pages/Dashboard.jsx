@@ -34,6 +34,11 @@ function ListCard({ list, currentUserId, onDelete }) {
                 Shared
               </span>
             )}
+            {list.isTodo === false && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                Simple
+              </span>
+            )}
           </div>
           <p className="mt-1 text-sm text-gray-500">
             {totalItems === 0
@@ -72,6 +77,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [newIsTodo, setNewIsTodo] = useState(true);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -100,9 +106,10 @@ export default function Dashboard() {
     }
     setCreating(true);
     try {
-      const res = await client.post('/lists', { title: newTitle.trim() });
+      const res = await client.post('/lists', { title: newTitle.trim(), isTodo: newIsTodo });
       setLists((prev) => [res.data.data, ...prev]);
       setNewTitle('');
+      setNewIsTodo(true);
       setShowCreateForm(false);
     } catch (err) {
       setCreateError(err.response?.data?.error || 'Failed to create list');
@@ -181,13 +188,29 @@ export default function Dashboard() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setShowCreateForm(false); setNewTitle(''); setCreateError(''); }}
+                  onClick={() => { setShowCreateForm(false); setNewTitle(''); setCreateError(''); setNewIsTodo(true); }}
                   className="btn-secondary"
                   disabled={creating}
                 >
                   Cancel
                 </button>
               </form>
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNewIsTodo(true)}
+                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors duration-150 ${newIsTodo ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'}`}
+                >
+                  Todo list
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewIsTodo(false)}
+                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors duration-150 ${!newIsTodo ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'}`}
+                >
+                  Simple list
+                </button>
+              </div>
             </div>
           )}
         </div>

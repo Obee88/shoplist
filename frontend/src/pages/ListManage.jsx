@@ -3,6 +3,27 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
+function renderWithLinks(text) {
+  const parts = text.split(URL_REGEX);
+  return parts.map((part, i) =>
+    URL_REGEX.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline text-indigo-500 hover:text-indigo-700"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    )
+  );
+}
+
 function EditableItemRow({ item, onSave, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [titleValue, setTitleValue] = useState(item.title);
@@ -66,7 +87,7 @@ function EditableItemRow({ item, onSave, onDelete }) {
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-800">{item.title}</p>
         {item.description && (
-          <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+          <p className="text-xs text-gray-500 mt-0.5">{renderWithLinks(item.description)}</p>
         )}
       </div>
       <button
@@ -155,6 +176,15 @@ export default function ListManage() {
       alert(err.response?.data?.error || 'Failed to update title');
     } finally {
       setSavingTitle(false);
+    }
+  };
+
+  const handleToggleIsTodo = async (value) => {
+    try {
+      const res = await client.put(`/lists/${id}`, { title: list.title, isTodo: value });
+      setList(res.data.data);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to update list type');
     }
   };
 
@@ -280,6 +310,23 @@ export default function ListManage() {
                   </svg>
                 </button>
               )}
+            </div>
+          )}
+          {isOwner && (
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-xs text-gray-500 mr-1">Type:</span>
+              <button
+                onClick={() => handleToggleIsTodo(true)}
+                className={`px-3 py-1 text-xs rounded-lg border transition-colors duration-150 ${list.isTodo !== false ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'}`}
+              >
+                Todo
+              </button>
+              <button
+                onClick={() => handleToggleIsTodo(false)}
+                className={`px-3 py-1 text-xs rounded-lg border transition-colors duration-150 ${list.isTodo === false ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'}`}
+              >
+                Simple
+              </button>
             </div>
           )}
         </div>

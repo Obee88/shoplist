@@ -2,7 +2,42 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 
-function ItemRow({ item, onToggle }) {
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
+function renderWithLinks(text) {
+  const parts = text.split(URL_REGEX);
+  return parts.map((part, i) =>
+    URL_REGEX.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="underline text-indigo-500 hover:text-indigo-700"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    )
+  );
+}
+
+function ItemRow({ item, onToggle, isTodo }) {
+  if (!isTodo) {
+    return (
+      <div className="w-full flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 text-left">
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-medium leading-5 text-gray-800">{item.title}</p>
+          {item.description && (
+            <p className="text-sm mt-0.5 text-gray-500">{renderWithLinks(item.description)}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <button
       onClick={() => onToggle(item._id, !item.resolved)}
@@ -30,7 +65,7 @@ function ItemRow({ item, onToggle }) {
         </p>
         {item.description && (
           <p className={`text-sm mt-0.5 ${item.resolved ? 'text-gray-300 line-through' : 'text-gray-500'}`}>
-            {item.description}
+            {renderWithLinks(item.description)}
           </p>
         )}
       </div>
@@ -154,7 +189,7 @@ export default function ListDetail() {
         ) : (
           <div className="space-y-2">
             {sortedItems.map((item) => (
-              <ItemRow key={item._id} item={item} onToggle={handleToggleItem} />
+              <ItemRow key={item._id} item={item} onToggle={handleToggleItem} isTodo={list.isTodo !== false} />
             ))}
           </div>
         )}
