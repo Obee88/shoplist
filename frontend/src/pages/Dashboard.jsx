@@ -43,9 +43,11 @@ function ListCard({ list, currentUserId, onDelete }) {
           <p className="mt-1 text-sm text-gray-500">
             {totalItems === 0
               ? 'No items yet'
+              : list.isTodo === false
+              ? `${totalItems} item${totalItems !== 1 ? 's' : ''}`
               : `${resolvedItems} / ${totalItems} done`}
           </p>
-          {totalItems > 0 && (
+          {totalItems > 0 && list.isTodo !== false && (
             <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
               <div
                 className="bg-indigo-500 h-1.5 rounded-full transition-all duration-300"

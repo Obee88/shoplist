@@ -157,7 +157,7 @@ export default function ListDetail() {
 
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold text-gray-800 truncate">{list.title}</h2>
-            {totalItems > 0 && (
+            {totalItems > 0 && list.isTodo !== false && (
               <p className="text-xs text-gray-400">{resolvedItems} / {totalItems} done</p>
             )}
           </div>
